@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: rombios.c 13487 2018-04-05 21:35:24Z vruppert $
+// $Id$
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -927,7 +927,7 @@ Bit16u cdrom_boot();
 
 #endif // BX_ELTORITO_BOOT
 
-static char bios_cvs_version_string[] = "$Revision: 13487 $ $Date: 2018-04-05 14:35:24 -0700 (Thu, 05 Apr 2018) $";
+static char bios_cvs_version_string[] = "$Revision$ $Date$";
 
 #define BIOS_COPYRIGHT_STRING "(c) 2001-2018  The Bochs Project"
 

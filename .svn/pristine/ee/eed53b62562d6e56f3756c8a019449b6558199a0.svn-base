@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: bximage.cc 13481 2018-03-30 21:04:04Z vruppert $
+// $Id$
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2013  The Bochs Project
@@ -118,7 +118,7 @@ char bx_filename_1[512];
 char bx_filename_2[512];
 
 const char *EOF_ERR = "ERROR: End of input";
-const char *svnid = "$Id: bximage.cc 13481 2018-03-30 21:04:04Z vruppert $";
+const char *svnid = "$Id$";
 const char *divider = "========================================================================";
 const char *main_menu_prompt =
 "\n"
