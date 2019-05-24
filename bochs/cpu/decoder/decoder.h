@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: decoder.h 13486 2018-04-04 19:31:56Z sshwarts $
+// $Id: decoder.h 13556 2019-02-22 19:15:53Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-2018  The Bochs Project
+//  Copyright (C) 2016-2019  The Bochs Project
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@
 #define BX_X86_DECODER_H
 
 // x86 Arch features
-enum {
+enum x86_feature_name {
   BX_ISA_386 = 0,                 /* 386 or earlier instruction */
   BX_ISA_X87,                     /* FPU (X87) instruction */
   BX_ISA_486,                     /* 486 new instruction */
@@ -120,8 +120,6 @@ enum {
   BX_ISA_RDPID,                   /* RDPID Support */
   BX_ISA_TCE,                     /* Translation Cache Extensions (TCE) support (AMD) */
   BX_ISA_CLZERO,                  /* CLZERO instruction support (AMD) */
-  BX_ISA_MOVDIRI,                 /* MOVDIRI instruction support */
-  BX_ISA_MOVDIRI64,               /* MOVDIRI64 instruction support */
   BX_ISA_EXTENSION_LAST
 };                            
 

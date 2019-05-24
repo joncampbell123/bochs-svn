@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: iodev.h 13472 2018-03-04 04:53:16Z vruppert $
+// $Id: iodev.h 13504 2018-05-10 10:50:42Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -87,6 +87,22 @@ class cdrom_base_c;
 //////////////////////////////////////////////////////////////////////
 
 #if BX_SUPPORT_PCI
+
+#define BX_DEBUG_PCI_READ(addr, value, io_len) \
+  if (io_len == 1) \
+    BX_DEBUG(("read  PCI register 0x%02X value 0x%02X (len=1)", address, value)); \
+  else if (io_len == 2) \
+    BX_DEBUG(("read  PCI register 0x%02X value 0x%04X (len=2)", address, value)); \
+  else if (io_len == 4) \
+    BX_DEBUG(("read  PCI register 0x%02X value 0x%08X (len=4)", address, value));
+
+#define BX_DEBUG_PCI_WRITE(addr, value, io_len) \
+  if (io_len == 1) \
+    BX_DEBUG(("write PCI register 0x%02X value 0x%02X (len=1)", addr, value)); \
+  else if (io_len == 2) \
+    BX_DEBUG(("write PCI register 0x%02X value 0x%04X (len=2)", addr, value)); \
+  else if (io_len == 4) \
+    BX_DEBUG(("write PCI register 0x%02X value 0x%08X (len=4)", addr, value));
 
 #define BX_PCI_BAR_TYPE_NONE 0
 #define BX_PCI_BAR_TYPE_MEM  1
@@ -308,6 +324,7 @@ public:
   virtual void beep_off() {
     bx_gui->beep_off();
   }
+  virtual void set_line(bx_bool level) {}
 };
 
 #if BX_SUPPORT_PCI

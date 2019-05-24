@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: pci_ide.cc 13470 2018-02-24 18:04:36Z vruppert $
+// $Id: pci_ide.cc 13497 2018-05-01 15:54:37Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2004-2018  The Bochs Project
@@ -427,6 +427,7 @@ void bx_pci_ide_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_le
       ((address > 0x23) && (address < 0x40)))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
 //  Bit8u oldval = BX_PIDE_THIS pci_conf[address+i];
     Bit8u value8 = (value >> (i*8)) & 0xFF;

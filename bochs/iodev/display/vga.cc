@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: vga.cc 13460 2018-02-05 16:02:53Z sshwarts $
+// $Id: vga.cc 13514 2018-05-21 07:31:18Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2002-2018  The Bochs Project
@@ -323,7 +323,7 @@ void bx_vga_c::update(void)
 
     /* skip screen update if the vertical retrace is in progress
        (using 72 Hz vertical frequency) */
-    if ((bx_virt_timer.time_usec(BX_VGA_THIS realtime) % 13888) < 70)
+    if ((bx_virt_timer.time_usec(BX_VGA_THIS vsync_realtime) % 13888) < 70)
       return;
 
     if (BX_VGA_THIS vbe.bpp != VBE_DISPI_BPP_4) {
@@ -1294,16 +1294,10 @@ Bit32u bx_vga_c::vbe_write(Bit32u address, Bit32u value, unsigned io_len)
 // static pci configuration space write callback handler
 void bx_vga_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_len)
 {
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%02x", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%04x", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%08x", address, value));
-
   if ((address >= 0x14) && (address < 0x30))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i = 0; i < io_len; i++) {
     unsigned write_addr = address + i;
 //  Bit8u old_value = BX_VGA_THIS pci_conf[write_addr];

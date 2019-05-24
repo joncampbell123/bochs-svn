@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: paging.cc 13466 2018-02-16 07:57:32Z sshwarts $
+// $Id: paging.cc 13536 2018-11-22 11:51:33Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -1042,7 +1042,11 @@ bx_phy_address BX_CPU_C::translate_linear_PAE(bx_address laddr, Bit32u &lpf_mask
 // 31-22 | Bits 31-22 of physical address of the 4-MByte page
 // -----------------------------------------------------------
 
+#if BX_PHY_ADDRESS_WIDTH > 40
+const Bit32u PAGING_PDE4M_RESERVED_BITS = 0; // there are no reserved bits in PDE4M when physical address is wider than 40 bit
+#else
 const Bit32u PAGING_PDE4M_RESERVED_BITS = ((1 << (41-BX_PHY_ADDRESS_WIDTH))-1) << (13 + BX_PHY_ADDRESS_WIDTH - 32);
+#endif
 
 // Translate a linear address to a physical address in legacy paging mode
 bx_phy_address BX_CPU_C::translate_linear_legacy(bx_address laddr, Bit32u &lpf_mask, unsigned user, unsigned rw)
@@ -1204,6 +1208,10 @@ bx_phy_address BX_CPU_C::translate_linear(bx_TLB_entry *tlbEntry, bx_address lad
     // in our TLB cache entry.  Re-walk the page tables, in case there is
     // updated information in the memory image, and let the long path code
     // generate an exception if one is warranted.
+
+    // Invalidate the TLB entry before re-walk as re-walk may end with paging fault.
+    // The entry will be reinitialized later if page walk succeeds.
+    tlbEntry->invalidate();
   }
 
   INC_TLB_STAT(tlbMisses);
@@ -2074,9 +2082,10 @@ bx_bool BX_CPU_C::dbg_translate_guest_physical(bx_phy_address guest_paddr, bx_ph
 }
 #endif
 
-bx_bool BX_CPU_C::dbg_xlate_linear2phy(bx_address laddr, bx_phy_address *phy, bx_bool verbose)
+bx_bool BX_CPU_C::dbg_xlate_linear2phy(bx_address laddr, bx_phy_address *phy, bx_address *lpf_mask, bx_bool verbose)
 {
   bx_phy_address paddress;
+  bx_address offset_mask = 0xfff;
 
 #if BX_SUPPORT_X86_64
   if (! long_mode()) laddr &= 0xffffffff;
@@ -2090,15 +2099,17 @@ bx_bool BX_CPU_C::dbg_xlate_linear2phy(bx_address laddr, bx_phy_address *phy, bx
 
 #if BX_CPU_LEVEL >= 6
     if (BX_CPU_THIS_PTR cr4.get_PAE()) {
-      Bit64u offset_mask = BX_CONST64(0x0000ffffffffffff);
+      offset_mask = BX_CONST64(0x0000ffffffffffff);
 
       int level = 3;
       if (! long_mode()) {
         pt_address = BX_CPU_THIS_PTR PDPTR_CACHE.entry[(laddr >> 30) & 3];
-        if (! (pt_address & 0x1))
+        if (! (pt_address & 0x1)) {
+           offset_mask = 0x3fffffff;
            goto page_fault;
-        pt_address &= BX_CONST64(0x000ffffffffff000);
+	}
         offset_mask >>= 18;
+        pt_address &= BX_CONST64(0x000ffffffffff000);
         level = 1;
       }
 
@@ -2140,7 +2151,7 @@ bx_bool BX_CPU_C::dbg_xlate_linear2phy(bx_address laddr, bx_phy_address *phy, bx
     else   // not PAE
 #endif
     {
-      Bit32u offset_mask = 0xfff;
+      offset_mask = 0xfff;
       for (int level = 1; level >= 0; --level) {
         Bit32u pte;
         pt_address += ((laddr >> (10 + 10*level)) & 0xffc);
@@ -2183,10 +2194,14 @@ bx_bool BX_CPU_C::dbg_xlate_linear2phy(bx_address laddr, bx_phy_address *phy, bx
   }
 #endif
 
+  if (lpf_mask)
+    *lpf_mask = offset_mask;
   *phy = A20ADDR(paddress);
   return 1;
 
 page_fault:
+  if (lpf_mask)
+    *lpf_mask = offset_mask;
   *phy = 0;
   return 0;
 }

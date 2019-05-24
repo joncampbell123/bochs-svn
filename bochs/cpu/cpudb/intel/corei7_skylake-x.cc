@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: corei7_skylake-x.cc 13340 2017-11-11 12:04:26Z sshwarts $
+// $Id: corei7_skylake-x.cc 13534 2018-10-26 19:54:22Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
-//   Copyright (c) 2017 Stanislav Shwartsman
+//   Copyright (c) 2017-2018 Stanislav Shwartsman
 //          Written by Stanislav Shwartsman [sshwarts at sourceforge net]
 //
 //  This library is free software; you can redistribute it and/or
@@ -246,6 +246,7 @@ Bit32u corei7_skylake_x_t::get_vmx_extensions_bitmask(void) const
          BX_VMX_VMCS_SHADOWING |
          BX_VMX_EPT_EXCEPTION |
          BX_VMX_SW_INTERRUPT_INJECTION_ILEN_0 |
+         BX_VMX_PML |
       /* BX_VMX_POSTED_INSTERRUPTS - not implemented yet */
       /* BX_VMX_MBE_CONTROL - not implemeted yet */
          BX_VMX_TSC_SCALING;
@@ -591,11 +592,11 @@ void corei7_skylake_x_t::get_std_cpuid_leaf_7(Bit32u subfunction, cpuid_function
                 BX_CPUID_EXT3_BMI2 | 
                 BX_CPUID_EXT3_ENCHANCED_REP_STRINGS |
                 BX_CPUID_EXT3_INVPCID |
+                BX_CPUID_EXT3_DEPRECATE_FCS_FDS |
 #if BX_SUPPORT_EVEX
                 BX_CPUID_EXT3_AVX512F |
                 BX_CPUID_EXT3_AVX512DQ |
 #endif
-                BX_CPUID_EXT3_DEPRECATE_FCS_FDS |
                 BX_CPUID_EXT3_RDSEED |
                 BX_CPUID_EXT3_ADX |
                 BX_CPUID_EXT3_SMAP |

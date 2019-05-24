@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: param_names.h 13192 2017-04-17 13:26:44Z vruppert $
+// $Id: param_names.h 13506 2018-05-11 07:44:49Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2009-2017  The Bochs Project
+//  Copyright (C) 2009-2018  The Bochs Project
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,7 @@
 #define BXPN_RESTORE_PATH                "general.restore_path"
 #define BXPN_DEBUG_RUNNING               "general.debug_running"
 #define BXPN_PLUGIN_CTRL                 "general.plugin_ctrl"
+#define BXPN_UNLOCK_IMAGES               "general.unlock_images"
 #define BXPN_CPU_NPROCESSORS             "cpu.n_processors"
 #define BXPN_CPU_NCORES                  "cpu.n_cores"
 #define BXPN_CPU_NTHREADS                "cpu.n_threads"

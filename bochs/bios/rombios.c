@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: rombios.c 13487 2018-04-05 21:35:24Z vruppert $
+// $Id: rombios.c 13498 2018-05-03 17:54:31Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -134,6 +134,7 @@
 // i440FX is emulated by Bochs and QEMU
 #define PCI_FIXED_HOST_BRIDGE 0x12378086  ;; i440FX PCI bridge
 #define PCI_FIXED_HOST_BRIDGE2 0x01228086 ;; i430FX PCI bridge
+#define PCI_FIXED_HOST_BRIDGE3 0x71908086 ;; i440BX PCI bridge
 
 // #20  is dec 20
 // #$20 is hex 20 = 32
@@ -927,7 +928,7 @@ Bit16u cdrom_boot();
 
 #endif // BX_ELTORITO_BOOT
 
-static char bios_cvs_version_string[] = "$Revision: 13487 $ $Date: 2018-04-05 14:35:24 -0700 (Thu, 05 Apr 2018) $";
+static char bios_cvs_version_string[] = "$Revision: 13498 $ $Date: 2018-05-03 10:54:31 -0700 (Thu, 03 May 2018) $";
 
 #define BIOS_COPYRIGHT_STRING "(c) 2001-2018  The Bochs Project"
 
@@ -9590,16 +9591,19 @@ bios32_entry_point:
   in  eax, dx
 #ifdef PCI_FIXED_HOST_BRIDGE
   cmp eax, #PCI_FIXED_HOST_BRIDGE
-  je pci_found
+  je  pci_found
+#endif
 #ifdef PCI_FIXED_HOST_BRIDGE2
   cmp eax, #PCI_FIXED_HOST_BRIDGE2
-  jne unknown_service
+  je  pci_found
 #endif
-#else
+#ifdef PCI_FIXED_HOST_BRIDGE3
+  cmp eax, #PCI_FIXED_HOST_BRIDGE3
+  je  pci_found
+#endif
   ;; say ok if a device is present
   cmp eax, #0xffffffff
   je unknown_service
-#endif
 pci_found:
   mov ebx, #0x000f0000
   mov ecx, #0x10000
@@ -9624,7 +9628,7 @@ pcibios_protected:
   cmp al, #0x01 ;; installation check
   jne pci_pro_f02
   mov bx, #0x0210
-  mov cx, #0
+  call pci_pro_get_max_bus ;; sets CX
   mov edx, #0x20494350 ;; "PCI "
   mov al, #0x01
   jmp pci_pro_ok
@@ -9646,7 +9650,7 @@ pci_pro_devloop:
   dec si
 pci_pro_nextdev:
   inc bx
-  cmp bx, #0x0100
+  cmp bx, #0x0200
   jne pci_pro_devloop
   mov ah, #0x86
   jmp pci_pro_fail
@@ -9667,7 +9671,7 @@ pci_pro_devloop2:
   dec si
 pci_pro_nextdev2:
   inc bx
-  cmp bx, #0x0100
+  cmp bx, #0x0200
   jne pci_pro_devloop2
   mov ah, #0x86
   jmp pci_pro_fail
@@ -9761,6 +9765,23 @@ pci_pro_ok:
   clc
   retf
 
+pci_pro_get_max_bus:
+  push eax
+  mov  eax, #0x80000000
+  mov  dx, #0x0cf8
+  out  dx, eax
+  mov  dx, #0x0cfc
+  in   eax, dx
+  mov  cx, #0
+#ifdef PCI_FIXED_HOST_BRIDGE3
+  cmp  eax, #PCI_FIXED_HOST_BRIDGE3
+  jne  pci_pro_no_i440bx
+  mov  cx, #0x0001
+#endif
+pci_pro_no_i440bx:
+  pop  eax
+  ret
+
 pci_pro_select_reg:
   push edx
   mov eax, #0x800000
@@ -9787,15 +9808,18 @@ pcibios_real:
 #ifdef PCI_FIXED_HOST_BRIDGE
   cmp eax, #PCI_FIXED_HOST_BRIDGE
   je  pci_present
+#endif
 #ifdef PCI_FIXED_HOST_BRIDGE2
   cmp eax, #PCI_FIXED_HOST_BRIDGE2
   je  pci_present
 #endif
-#else
+#ifdef PCI_FIXED_HOST_BRIDGE3
+  cmp eax, #PCI_FIXED_HOST_BRIDGE3
+  je  pci_present
+#endif
   ;; say ok if a device is present
   cmp eax, #0xffffffff
   jne  pci_present
-#endif
   pop dx
   pop eax
   mov ah, #0xff
@@ -9808,7 +9832,7 @@ pci_present:
   jne pci_real_f02
   mov ax, #0x0001
   mov bx, #0x0210
-  mov cx, #0
+  call pci_real_get_max_bus ;; sets CX
   mov edx, #0x20494350 ;; "PCI "
   mov edi, #0xf0000
   mov di, #pcibios_protected
@@ -9834,7 +9858,7 @@ pci_real_devloop:
   dec si
 pci_real_nextdev:
   inc bx
-  cmp bx, #0x0100
+  cmp bx, #0x0200
   jne pci_real_devloop
   mov dx, cx
   shr ecx, #16
@@ -9857,7 +9881,7 @@ pci_real_devloop2:
   dec si
 pci_real_nextdev2:
   inc bx
-  cmp bx, #0x0100
+  cmp bx, #0x0200
   jne pci_real_devloop2
   mov dx, cx
   shr ecx, #16
@@ -9978,6 +10002,23 @@ pci_real_ok:
   clc
   ret
 
+pci_real_get_max_bus:
+  push eax
+  mov  eax, #0x80000000
+  mov  dx, #0x0cf8
+  out  dx, eax
+  mov  dx, #0x0cfc
+  in   eax, dx
+  mov  cx, #0
+#ifdef PCI_FIXED_HOST_BRIDGE3
+  cmp  eax, #PCI_FIXED_HOST_BRIDGE3
+  jne  pci_real_no_i440bx
+  mov  cx, #0x0001
+#endif
+pci_real_no_i440bx:
+  pop  eax
+  ret
+
 pci_real_select_reg:
   push dx
   mov eax, #0x800000
@@ -10057,7 +10098,7 @@ pci_routing_table_structure_start:
   dw 0xdef8 ;; IRQ bitmap INTD#
   db 3 ;; physical slot (0 = embedded)
   db 0 ;; reserved
-  ;; 5th slot entry: 4rd PCI slot
+  ;; 5th slot entry: 4th PCI slot
   db 0 ;; pci bus number
   db 0x28 ;; pci device number (bit 7-3)
   db 0x60 ;; link value INTA#
@@ -10070,7 +10111,7 @@ pci_routing_table_structure_start:
   dw 0xdef8 ;; IRQ bitmap INTD#
   db 4 ;; physical slot (0 = embedded)
   db 0 ;; reserved
-  ;; 6th slot entry: 5rd PCI slot
+  ;; 6th slot entry: 5th PCI slot
   db 0 ;; pci bus number
   db 0x30 ;; pci device number (bit 7-3)
   db 0x61 ;; link value INTA#

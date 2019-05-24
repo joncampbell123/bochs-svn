@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: vgacore.h 13360 2017-11-28 18:05:36Z vruppert $
+// $Id: vgacore.h 13514 2018-05-21 07:31:18Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2001-2017  The Bochs Project
+//  Copyright (C) 2001-2018  The Bochs Project
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -264,7 +264,8 @@ protected:
   } s;  // state information
 
   int timer_id;
-  bx_bool realtime;
+  bx_bool update_realtime;
+  bx_bool vsync_realtime;
   bx_param_string_c *vgaext;
   bx_bool pci_enabled;
 };

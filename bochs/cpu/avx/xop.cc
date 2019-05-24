@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: xop.cc 13466 2018-02-16 07:57:32Z sshwarts $
+// $Id: xop.cc 13520 2018-05-27 19:09:59Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //   Copyright (c) 2011-2018 Stanislav Shwartsman
@@ -912,6 +912,8 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPERMIL2PS_VdqHdqWdqIbR(bxInstruction_c *i
   BxPackedYmmRegister op3 = BX_READ_YMM_REG(i->src3()), result;
   unsigned len = i->getVL();
 
+  result.clear();
+
   for (unsigned n=0; n < len; n++) {
     xmm_permil2ps(&result.ymm128(n), &op1.ymm128(n), &op2.ymm128(n), &op3.ymm128(n), i->Ib() & 3);
   }
@@ -927,6 +929,8 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPERMIL2PD_VdqHdqWdqIbR(bxInstruction_c *i
   BxPackedYmmRegister op2 = BX_READ_YMM_REG(i->src2());
   BxPackedYmmRegister op3 = BX_READ_YMM_REG(i->src3()), result;
   unsigned len = i->getVL();
+
+  result.clear();
 
   for (unsigned n=0; n < len; n++) {
     xmm_permil2pd(&result.ymm128(n), &op1.ymm128(n), &op2.ymm128(n), &op3.ymm128(n), i->Ib() & 3);

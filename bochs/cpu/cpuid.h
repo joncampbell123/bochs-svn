@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: cpuid.h 13489 2018-04-06 05:06:36Z sshwarts $
+// $Id: cpuid.h 13562 2019-05-22 18:22:22Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //   Copyright (c) 2010-2018 Stanislav Shwartsman
@@ -67,6 +67,8 @@ public:
   virtual void get_cpuid_leaf(Bit32u function, Bit32u subfunction, cpuid_function_t *leaf) const = 0;
 
   virtual void dump_cpuid(void) const = 0;
+
+  void dump_features() const;
 
 #if BX_CPU_LEVEL >= 5
   virtual int rdmsr(Bit32u index, Bit64u *msr) { return -1; }
@@ -137,6 +139,8 @@ protected:
 #endif
 };
 
+extern const char *get_cpu_feature_name(unsigned feature);
+
 typedef bx_cpuid_t* (*bx_create_cpuid_method)(BX_CPU_C *cpu);
 
 // cpuid VMX features
@@ -162,7 +166,7 @@ typedef bx_cpuid_t* (*bx_create_cpuid_method)(BX_CPU_C *cpu);
 #define BX_VMX_POSTED_INSTERRUPTS               (1 << 19)   /* Posted Interrupts support - not implemented yet */
 #define BX_VMX_VMCS_SHADOWING                   (1 << 20)   /* VMCS Shadowing */
 #define BX_VMX_EPT_EXCEPTION                    (1 << 21)   /* EPT Violation (#VE) exception */
-#define BX_VMX_PML                              (1 << 22)   /* Page Modification Logging - not implemented yet */
+#define BX_VMX_PML                              (1 << 22)   /* Page Modification Logging */
 #define BX_VMX_SPP                              (1 << 23)   /* Sub Page Protection */
 #define BX_VMX_TSC_SCALING                      (1 << 24)   /* TSC Scaling */
 #define BX_VMX_SW_INTERRUPT_INJECTION_ILEN_0    (1 << 25)   /* Allow software interrupt injection with instruction length 0 */
@@ -400,8 +404,8 @@ typedef bx_cpuid_t* (*bx_create_cpuid_method)(BX_CPU_C *cpu);
 // [25:25]    CLDEMOTE: CLDEMOTE instruction support
 // [26:26]    reserved
 // [27:27]    MOVDIRI: MOVDIRI instruction support
-// [28:28]    MOVDIR64: MOVDIR64 instruction support
-// [29:29]    reserved
+// [28:28]    MOVDIR64B: MOVDIR64B instruction support
+// [29:29]    ENQCMD: Enqueue Stores support
 // [30:30]    SGX_LC: SGX Launch Configuration
 // [31:31]    reserved
 
@@ -433,8 +437,8 @@ typedef bx_cpuid_t* (*bx_create_cpuid_method)(BX_CPU_C *cpu);
 #define BX_CPUID_EXT4_CLDEMOTE               (1 << 25)
 #define BX_CPUID_EXT4_RESERVED26             (1 << 26)
 #define BX_CPUID_EXT4_MOVDIRI                (1 << 27)
-#define BX_CPUID_EXT4_MOVDIR64               (1 << 28)
-#define BX_CPUID_EXT4_RESERVED29             (1 << 29)
+#define BX_CPUID_EXT4_MOVDIR64B              (1 << 28)
+#define BX_CPUID_EXT4_ENQCMD                 (1 << 29)
 #define BX_CPUID_EXT4_SGX_LAUNCH_CONFIG      (1 << 30)
 #define BX_CPUID_EXT4_RESERVED31             (1 << 31)
 
@@ -444,6 +448,8 @@ typedef bx_cpuid_t* (*bx_create_cpuid_method)(BX_CPU_C *cpu);
 //   [2:2]    AVX512 4VNNIW instructions support
 //   [3:3]    AVX512 4FMAPS instructions support
 //   [4:4]    Support of Fast REP MOV instructions with short length
+//   [7:5]    reserved
+//   [8:8]    AVX512 VP2INTERSECT instructions support
 //   ...
 
 #define BX_CPUID_EXT5_RESERVED0              (1 <<  0)
@@ -451,6 +457,10 @@ typedef bx_cpuid_t* (*bx_create_cpuid_method)(BX_CPU_C *cpu);
 #define BX_CPUID_EXT5_AVX512_4VNNIW          (1 <<  2)
 #define BX_CPUID_EXT5_AVX512_4FMAPS          (1 <<  3)
 #define BX_CPUID_EXT5_FAST_SHORT_REP_MOV     (1 <<  4)
+#define BX_CPUID_EXT5_RESERVED5              (1 <<  5)
+#define BX_CPUID_EXT5_RESERVED6              (1 <<  6)
+#define BX_CPUID_EXT5_RESERVED7              (1 <<  7)
+#define BX_CPUID_EXT5_AVX512_VPINTERSECT     (1 <<  8)
 // ...
 
 // CPUID defines - STD2 features CPUID[0x80000001].EDX

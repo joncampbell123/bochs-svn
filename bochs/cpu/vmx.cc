@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: vmx.cc 13466 2018-02-16 07:57:32Z sshwarts $
+// $Id: vmx.cc 13562 2019-05-22 18:22:22Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //   Copyright (c) 2009-2018 Stanislav Shwartsman
@@ -109,6 +109,8 @@ static const char *VMX_vmexit_reason_name[] =
   /* 64 */  "XRSTORS",
   /* 65 */  "Reserved65",
   /* 66 */  "Sub-Page Protection",
+  /* 67 */  "UMWAIT",
+  /* 68 */  "TPAUSE",
 };
 
 #include "decoder/ia_opcodes.h"
@@ -798,12 +800,12 @@ VMX_error_code BX_CPU_C::VMenterLoadCheckVmControls(void)
        return VMXERR_VMENTRY_INVALID_VM_CONTROL_FIELD;
     }
   }
-#endif
 
   if (vm->vmexec_ctrls3 & VMX_VM_EXEC_CTRL3_XSAVES_XRSTORS)
      vm->xss_exiting_bitmap = VMread64(VMCS_64BIT_CONTROL_XSS_EXITING_BITMAP);
   else
      vm->xss_exiting_bitmap = 0;
+#endif
 
 #endif // BX_SUPPORT_X86_64
 
@@ -2317,11 +2319,10 @@ void BX_CPU_C::VMexitLoadHostState(void)
 {
   VMCS_HOST_STATE *host_state = &BX_CPU_THIS_PTR vmcs.host_state;
   bx_bool x86_64_host = 0;
-  Bit32u vmexit_ctrls = BX_CPU_THIS_PTR vmcs.vmexit_ctrls;
-
   BX_CPU_THIS_PTR tsc_offset = 0;
 
 #if BX_SUPPORT_X86_64
+  Bit32u vmexit_ctrls = BX_CPU_THIS_PTR vmcs.vmexit_ctrls;
   if (vmexit_ctrls & VMX_VMEXIT_CTRL1_HOST_ADDR_SPACE_SIZE) {
      BX_DEBUG(("VMEXIT to x86-64 host"));
      x86_64_host = 1;

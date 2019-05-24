@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: config.cc 13474 2018-03-13 20:35:56Z vruppert $
+// $Id: config.cc 13506 2018-05-11 07:44:49Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2002-2018  The Bochs Project
@@ -347,6 +347,12 @@ void bx_init_options()
       "dumpstats mode",
       "dump statistics period",
       0, BX_MAX_BIT32U, 0);
+  // unlock disk images
+  new bx_param_bool_c(menu,
+      "unlock_images",
+      "Unlock disk images",
+      "Unlock disk images leftover previous from Bochs session",
+      0);
 
   // subtree for setting up log actions by device in bochsrc
   bx_list_c *logfn = new bx_list_c(menu, "logfn", "Logfunctions");

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: voodoo_data.h 13425 2018-01-05 17:43:51Z vruppert $
+// $Id: voodoo_data.h 13516 2018-05-21 18:01:49Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 /*
  *  Portion of this software comes with the following license
@@ -933,15 +933,17 @@ static const char *const banshee_io_reg_name[] =
 #define cmdAMax0        (0x03c/4) /*  */
 
 /* 0x040 */
+#define cmdStatus0        (0x040/4) /*  */
 #define cmdFifoDepth0     (0x044/4) /*  */
 #define cmdHoleCnt0       (0x048/4) /*  */
 #define cmdBaseAddr1      (0x050/4) /*  */
 #define cmdBaseSize1      (0x054/4) /*  */
-#define cmdBump1        (0x058/4) /*  */
+#define cmdBump1          (0x058/4) /*  */
 #define cmdRdPtrL1        (0x05c/4) /*  */
 #define cmdRdPtrH1        (0x060/4) /*  */
-#define cmdAMin1        (0x064/4) /*  */
-#define cmdAMax1        (0x06c/4) /*  */
+#define cmdAMin1          (0x064/4) /*  */
+#define cmdAMax1          (0x06c/4) /*  */
+#define cmdStatus1        (0x070/4) /*  */
 #define cmdFifoDepth1     (0x074/4) /*  */
 #define cmdHoleCnt1       (0x078/4) /*  */
 

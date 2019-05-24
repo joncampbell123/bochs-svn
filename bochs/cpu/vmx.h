@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: vmx.h 13451 2018-01-27 21:20:33Z sshwarts $
+// $Id: vmx.h 13562 2019-05-22 18:22:22Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //   Copyright (c) 2009-2017 Stanislav Shwartsman
@@ -137,6 +137,8 @@ enum VMX_vmexit_reason {
    VMX_VMEXIT_XRSTORS = 64,
    VMX_VMEXIT_RESERVED65 = 65,
    VMX_VMEXIT_SPP = 66,
+   VMX_VMEXIT_UMWAIT = 67,
+   VMX_VMEXIT_TPAUSE = 68,
    VMX_VMEXIT_LAST_REASON
 };
 
@@ -443,10 +445,12 @@ const Bit64u VMX_VMFUNC_EPTP_SWITCHING_MASK = (BX_CONST64(1) << VMX_VMFUNC_EPTP_
 // bits 11:10 of VMCS field encoding indicate field's type
 #define VMCS_FIELD_TYPE(encoding)   (((encoding) >> 10) & 3)
 
-#define VMCS_FIELD_TYPE_CONTROL        0x0
-#define VMCS_FIELD_TYPE_READ_ONLY      0x1
-#define VMCS_FIELD_TYPE_GUEST_STATE    0x2
-#define VMCS_FIELD_TYPE_HOST_STATE     0x3
+enum {
+  VMCS_FIELD_TYPE_CONTROL     = 0x0,
+  VMCS_FIELD_TYPE_READ_ONLY   = 0x1,
+  VMCS_FIELD_TYPE_GUEST_STATE = 0x2,
+  VMCS_FIELD_TYPE_HOST_STATE  = 0x3
+};
 
 // bits 14:13 of VMCS field encoding indicate field's width
 #define VMCS_FIELD_WIDTH(encoding)  (((encoding) >> 13) & 3)
@@ -1063,18 +1067,18 @@ const Bit32u VMX_MISC_PREEMPTION_TIMER_RATE = 0;
 
 // allowed 0-setting in CR0 in VMX mode
 // bits PE(0), NE(5) and PG(31) required to be set in CR0 to enter VMX mode
-#define VMX_MSR_CR0_FIXED0_LO (0x80000021)
-#define VMX_MSR_CR0_FIXED0_HI (0x00000000)
+const Bit32u VMX_MSR_CR0_FIXED0_LO = 0x80000021;
+const Bit32u VMX_MSR_CR0_FIXED0_HI = 0x00000000;
 
-#define VMX_MSR_CR0_FIXED0 \
-   ((((Bit64u) VMX_MSR_CR0_FIXED0_HI) << 32) | VMX_MSR_CR0_FIXED0_LO)
+const Bit64u VMX_MSR_CR0_FIXED0 = 
+   ((((Bit64u) VMX_MSR_CR0_FIXED0_HI) << 32) | VMX_MSR_CR0_FIXED0_LO);
 
 // allowed 1-setting in CR0 in VMX mode
-#define VMX_MSR_CR0_FIXED1_LO (0xFFFFFFFF)
-#define VMX_MSR_CR0_FIXED1_HI (0x00000000)
+const Bit32u VMX_MSR_CR0_FIXED1_LO = 0xFFFFFFFF;
+const Bit32u VMX_MSR_CR0_FIXED1_HI = 0x00000000;
 
-#define VMX_MSR_CR0_FIXED1 \
-   ((((Bit64u) VMX_MSR_CR0_FIXED1_HI) << 32) | VMX_MSR_CR0_FIXED1_LO)
+const Bit64u VMX_MSR_CR0_FIXED1 = 
+   ((((Bit64u) VMX_MSR_CR0_FIXED1_HI) << 32) | VMX_MSR_CR0_FIXED1_LO);
 
 //
 // IA32_VMX_CR4_FIXED0 MSR (0x488)   IA32_VMX_CR4_FIXED1 MSR (0x489)
@@ -1082,11 +1086,11 @@ const Bit32u VMX_MISC_PREEMPTION_TIMER_RATE = 0;
 
 // allowed 0-setting in CR0 in VMX mode
 // bit VMXE(13) required to be set in CR4 to enter VMX mode
-#define VMX_MSR_CR4_FIXED0_LO (0x00002000)
-#define VMX_MSR_CR4_FIXED0_HI (0x00000000)
+const Bit32u VMX_MSR_CR4_FIXED0_LO = 0x00002000;
+const Bit32u VMX_MSR_CR4_FIXED0_HI = 0x00000000;
 
-#define VMX_MSR_CR4_FIXED0 \
-   ((((Bit64u) VMX_MSR_CR4_FIXED0_HI) << 32) | VMX_MSR_CR4_FIXED0_LO)
+const Bit64u VMX_MSR_CR4_FIXED0 = 
+   ((((Bit64u) VMX_MSR_CR4_FIXED0_HI) << 32) | VMX_MSR_CR4_FIXED0_LO);
 
 // allowed 1-setting in CR0 in VMX mode
 #define VMX_MSR_CR4_FIXED1_LO (BX_CPU_THIS_PTR cr4_suppmask)

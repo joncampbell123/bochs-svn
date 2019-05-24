@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: vgacore.cc 13463 2018-02-12 09:19:33Z vruppert $
+// $Id: vgacore.cc 13514 2018-05-21 07:31:18Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -233,23 +233,26 @@ void bx_vgacore_c::init_iohandlers(bx_read_handler_t f_read, bx_write_handler_t 
   }
 
   for (addr=0x03DA; addr<=0x03DA; addr++) {
-    DEV_register_ioread_handler(this, f_read, addr, "vga video", 1);
+    DEV_register_ioread_handler(this, f_read, addr, "vga video", 3);
     DEV_register_iowrite_handler(this, f_write, addr, "vga video", 3);
   }
 }
 
 void bx_vgacore_c::init_systemtimer(void)
 {
-  BX_VGA_THIS realtime = SIM->get_param_bool(BXPN_VGA_REALTIME)->get();
+  BX_VGA_THIS update_realtime = SIM->get_param_bool(BXPN_VGA_REALTIME)->get();
   bx_param_num_c *vga_update_freq = SIM->get_param_num(BXPN_VGA_UPDATE_FREQUENCY);
   Bit32u update_interval = (Bit32u)(1000000 / vga_update_freq->get());
-  BX_INFO(("interval=%u, mode=%s", update_interval, BX_VGA_THIS realtime ? "realtime":"standard"));
+  BX_INFO(("interval=%u, mode=%s", update_interval, BX_VGA_THIS update_realtime ? "realtime":"standard"));
   if (BX_VGA_THIS timer_id == BX_NULL_TIMER_HANDLE) {
     BX_VGA_THIS timer_id = bx_virt_timer.register_timer(this, vga_timer_handler,
-       update_interval, 1, 1, BX_VGA_THIS realtime, "vga");
+       update_interval, 1, 1, BX_VGA_THIS update_realtime, "vga");
     vga_update_freq->set_handler(vga_param_handler);
     vga_update_freq->set_device_param(this);
   }
+  BX_VGA_THIS vsync_realtime =
+    (SIM->get_param_enum(BXPN_CLOCK_SYNC)->get() & BX_CLOCK_SYNC_REALTIME) > 0;
+  BX_INFO(("VSYNC using %s mode", BX_VGA_THIS vsync_realtime ? "realtime":"standard"));
   // VGA text mode cursor blink frequency 1.875 Hz
   if (update_interval < 266666) {
     BX_VGA_THIS s.blink_counter = 266666 / (unsigned)update_interval;
@@ -507,7 +510,7 @@ Bit32u bx_vgacore_c::read(Bit32u address, unsigned io_len)
       //           horizontal or vertical blanking period is active
 
       retval = 0;
-      display_usec = bx_virt_timer.time_usec(BX_VGA_THIS realtime) % BX_VGA_THIS s.vtotal_usec;
+      display_usec = bx_virt_timer.time_usec(BX_VGA_THIS vsync_realtime) % BX_VGA_THIS s.vtotal_usec;
       if ((display_usec >= BX_VGA_THIS s.vrstart_usec) &&
           (display_usec <= BX_VGA_THIS s.vrend_usec)) {
         retval |= 0x08;
@@ -748,6 +751,10 @@ Bit32u bx_vgacore_c::read(Bit32u address, unsigned io_len)
         RETURN(0);
       }
       RETURN(BX_VGA_THIS s.CRTC.reg[BX_VGA_THIS s.CRTC.address]);
+      break;
+
+    case 0x03db: /* Ignore this address (16-bit read from 0x03da) */
+      RETURN(0); /* keep compiler happy */
       break;
 
     case 0x03b4: /* CRTC Index Register (monochrome emulation modes) */
@@ -1373,7 +1380,7 @@ bx_bool bx_vgacore_c::skip_update(void)
     return 1;
 
   /* skip screen update if the vertical retrace is in progress */
-  display_usec = bx_virt_timer.time_usec(BX_VGA_THIS realtime) % BX_VGA_THIS s.vtotal_usec;
+  display_usec = bx_virt_timer.time_usec(BX_VGA_THIS vsync_realtime) % BX_VGA_THIS s.vtotal_usec;
   if ((display_usec > BX_VGA_THIS s.vrstart_usec) &&
       (display_usec < BX_VGA_THIS s.vrend_usec)) {
     return 1;
@@ -1641,6 +1648,9 @@ void bx_vgacore_c::update(void)
 
     tm_info.start_address = 2*((BX_VGA_THIS s.CRTC.reg[12] << 8) +
                             BX_VGA_THIS s.CRTC.reg[13]);
+    if ((BX_VGA_THIS s.CRTC.reg[0x08] & 0x60) > 0) {
+      BX_ERROR(("byte panning not implemented yet"));
+    }
     tm_info.cs_start = BX_VGA_THIS s.CRTC.reg[0x0a] & 0x3f;
     if (!cs_visible) {
       tm_info.cs_start |= 0x20;

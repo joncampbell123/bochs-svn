@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: opcodes.inc 13400 2017-12-17 18:55:03Z sshwarts $
+// $Id: opcodes.inc 13549 2019-02-08 16:28:51Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //   Copyright (c) 2005-2013 Stanislav Shwartsman
@@ -567,7 +567,6 @@ Ia_jz_Jd = { "jz", "jz", Jd, XX, XX, XX, 0 },
 Ia_jz_Jw = { "jz", "jz", Jw, XX, XX, XX, 0 },
 Ia_lahf = { "lahf", "lahf", XX, XX, XX, XX, 0 },
 Ia_larl_Gd_Ew = { "lar", "larl", Gd, Ew, XX, XX, 0 },
-Ia_larq_Gq_Ew = { "lar", "larq", Gq, Ew, XX, XX, 0 },
 Ia_larw_Gw_Ew = { "lar", "larw", Gw, Ew, XX, XX, 0 },
 Ia_lcall_Apd = { "callf", "lcall", Apd, XX, XX, XX, 0 },
 Ia_lcall_Apw = { "callf", "lcall", Apw, XX, XX, XX, 0 },
@@ -606,7 +605,6 @@ Ia_loopne_Jb = { "loopne", "loopne", Jb, XX, XX, XX, 0 },
 Ia_lret = { "retf", "lret", XX, XX, XX, XX, 0 },
 Ia_lret_Iw = { "retf", "lret", Iw, XX, XX, XX, 0 },
 Ia_lsll_Gd_Ew = { "lsl", "lsll", Gd, Ew, XX, XX, 0 },
-Ia_lslq_Gq_Ew = { "lsl", "lslq", Gq, Ew, XX, XX, 0 },
 Ia_lslw_Gw_Ew = { "lsl", "lslw", Gw, Ew, XX, XX, 0 },
 Ia_lssl_Gd_Mp = { "lss", "lssl", Gd, Mp, XX, XX, 0 },
 Ia_lssq_Gq_Mp = { "lss", "lssq", Gq, Mp, XX, XX, 0 },
@@ -1528,7 +1526,7 @@ Ia_vlddqu_Vdq_Mdq = { "vlddqu", "vlddqu", Vdq, Mdq, XX, XX, BX_ISA_AVX },
 Ia_vldmxcsr = { "vldmxcsr", "vldmxcsr", Md, XX, XX, XX, BX_ISA_AVX },
 Ia_vmaskmovd_Mdq_Hdq_Vdq = { "vmaskmovd", "vmaskmovd", Mdq, Hdq, Vdq, XX, BX_ISA_AVX2 },
 Ia_vmaskmovd_Vdq_Hdq_Mdq = { "vmaskmovd", "vmaskmovd", Vdq, Hdq, Mdq, XX, BX_ISA_AVX2 },
-Ia_vmaskmovdqu_Vdq_Udq = { "vmaskmovdqu", "vmaskmovdqu", Vdq, Udq, XX, XX, BX_ISA_AVX },
+Ia_vmaskmovdqu_Vdq_Udq = { "vmaskmovdqu", "vmaskmovdqu", Vdq, Udq, sYdq, XX, BX_ISA_AVX },
 Ia_vmaskmovpd_Mpd_Hpd_Vpd = { "vmaskmovpd", "vmaskmovpd", Mpd, Hpd, Vpd, XX, BX_ISA_AVX },
 Ia_vmaskmovpd_Vpd_Hpd_Mpd = { "vmaskmovpd", "vmaskmovpd", Vpd, Hpd, Mpd, XX, BX_ISA_AVX },
 Ia_vmaskmovps_Mps_Hps_Vps = { "vmaskmovps", "vmaskmovps", Mps, Hps, Vps, XX, BX_ISA_AVX },

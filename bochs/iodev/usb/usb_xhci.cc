@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: usb_xhci.cc 13460 2018-02-05 16:02:53Z sshwarts $
+// $Id: usb_xhci.cc 13519 2018-05-27 18:33:07Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2010-2017  Benjamin D Lunt (fys [at] fysnet [dot] net)
@@ -692,7 +692,7 @@ bx_bool bx_usb_xhci_c::save_hc_state(void)
 
   // get MAX_SCRATCH_PADS worth of pointers
   for (i=0; i<MAX_SCRATCH_PADS; i++) {
-    DEV_MEM_READ_PHYSICAL((bx_phy_address) (addr + i * 8), 8, (Bit8u*)temp[i]);
+    DEV_MEM_READ_PHYSICAL((bx_phy_address) (addr + i * 8), 8, (Bit8u*)&temp[i]);
   }
 
   for (i=0; i<MAX_SCRATCH_PADS; i++) {
@@ -733,7 +733,7 @@ bx_bool bx_usb_xhci_c::restore_hc_state(void)
 
   // get MAX_SCRATCH_PADS worth of pointers
   for (i=0; i<MAX_SCRATCH_PADS; i++) {
-    DEV_MEM_READ_PHYSICAL_DMA((bx_phy_address) (addr + i * 8), 8, (Bit8u*)temp[i]);
+    DEV_MEM_READ_PHYSICAL_DMA((bx_phy_address) (addr + i * 8), 8, (Bit8u*)&temp[i]);
   }
 
   // we read it in to a temp buffer just to check the crc.
@@ -3109,6 +3109,7 @@ void bx_usb_xhci_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_l
   if (((address >= 0x14) && (address <= 0x34)))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
     Bit8u value8 = (value >> (i*8)) & 0xFF;
 //  Bit8u oldval = BX_XHCI_THIS pci_conf[address+i];
@@ -3138,13 +3139,6 @@ void bx_usb_xhci_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_l
         BX_XHCI_THIS pci_conf[address+i] = value8;
     }
   }
-
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02X value 0x%02X (len=1)", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02X value 0x%04X (len=2)", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02X value 0x%08X (len=4)", address, value));
 }
 
 void bx_usb_xhci_c::usb_set_connect_status(Bit8u port, int type, bx_bool connected)

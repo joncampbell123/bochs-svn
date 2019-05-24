@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: banshee.cc 13483 2018-04-01 16:05:40Z vruppert $
+// $Id: banshee.cc 13524 2018-07-21 16:14:53Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-2018  The Bochs Project
@@ -56,7 +56,7 @@
 
 ***************************************************************************/
 
-// 3dfx Voodoo Banshee emulation (partly based on a patch for DOSBox)
+// 3dfx Voodoo Banshee / Voodoo3 emulation (partly based on a patch for DOSBox)
 
 // TODO:
 // - 2D polygon fill
@@ -64,6 +64,7 @@
 // - 2D chromaKey support
 // - using upper 256 CLUT entries
 // - pixel format conversion not supported in all cases
+// - full AGP support
 
 // FIXME:
 // - Minor issues in all Banshee modes (e.g. forward/back buttons in explorer)
@@ -147,7 +148,7 @@ void bx_banshee_c::init_model(void)
     DEV_register_pci_handlers2(this, &s.devfunc, BX_PLUGIN_VOODOO, model, is_agp);
     init_pci_conf(0x121a, 0x0003, 0x01, 0x030000, 0x00, BX_PCI_INTA);
   } else if (s.model == VOODOO_3) {
-    if (is_agp) {
+    if (!is_agp) {
       strcpy(model, "Experimental 3dfx Voodoo 3 PCI");
     } else {
       strcpy(model, "Experimental 3dfx Voodoo 3 AGP");
@@ -187,7 +188,7 @@ void bx_banshee_c::reset(unsigned type)
     { 0x1a, 0x00 }, { 0x1b, 0x00 },
     // address space 0x2c - 0x2f
     { 0x2c, 0x1a }, { 0x2d, 0x12 }, // subsystem ID
-    { 0x2e, 0x04 }, { 0x2f, 0x00 }, // for Banshee PCI and Voodoo 3 AGP
+    { 0x2e, 0x04 }, { 0x2f, 0x00 }, // for Banshee PCI
     // capabilities pointer 0x34 - 0x37
     { 0x34, 0x60 }, { 0x35, 0x00 },
     { 0x36, 0x00 }, { 0x37, 0x00 },
@@ -196,8 +197,8 @@ void bx_banshee_c::reset(unsigned type)
     { 0x60, 0x01 }, { 0x61, 0x00 },
     { 0x62, 0x21 }, { 0x63, 0x00 },
     // ACPI control/status 0x64 - 0x67
-    { 0x60, 0x00 }, { 0x61, 0x00 },
-    { 0x62, 0x00 }, { 0x63, 0x00 },
+    { 0x64, 0x00 }, { 0x65, 0x00 },
+    { 0x66, 0x00 }, { 0x67, 0x00 },
   };
   for (i = 0; i < sizeof(reset_vals2) / sizeof(*reset_vals2); ++i) {
     pci_conf[reset_vals2[i].addr] = reset_vals2[i].val;
@@ -210,12 +211,23 @@ void bx_banshee_c::reset(unsigned type)
     pci_conf[0x55] = 0x60;
     pci_conf[0x56] = 0x10;
     pci_conf[0x57] = 0x00;
+    if (s.model == VOODOO_3) {
+      pci_conf[0x58] = 0x23;
+    } else {
+      pci_conf[0x58] = 0x21;
+    }
+    pci_conf[0x59] = 0x02;
+    pci_conf[0x5b] = 0x07;
     v->banshee.io[io_strapInfo] |= 0x0000000c;
     v->banshee.io[io_miscInit1] |= 0x0c000000;
   }
   // Special subsystem IDs
-  if ((s.model == VOODOO_3) && !is_agp) {
-    pci_conf[0x2e] = 0x36; // Voodoo 3 PCI model
+  if (s.model == VOODOO_3) {
+    if (!is_agp) {
+      pci_conf[0x2e] = 0x36; // Voodoo 3 PCI model
+    } else {
+      pci_conf[0x2e] = 0x52; // Voodoo 3 AGP model
+    }
   } else if ((s.model == VOODOO_BANSHEE) && is_agp) {
     pci_conf[0x2e] = 0x03; // Banshee AGP model
   }
@@ -328,7 +340,7 @@ void bx_banshee_c::draw_hwcursor(unsigned xc, unsigned yc, bx_svga_tileinfo_t *i
   unsigned cx, cy, cw, ch, px, py, w, h, x, y;
   Bit8u *cpat0, *cpat1, *tile_ptr, *tile_ptr2, *vid_ptr;
   Bit8u ccode, pbits, pval0, pval1;
-  Bit32u colour = 0;
+  Bit32u colour = 0, start;
   int i;
 
   if ((xc <= v->banshee.hwcursor.x) &&
@@ -336,7 +348,11 @@ void bx_banshee_c::draw_hwcursor(unsigned xc, unsigned yc, bx_svga_tileinfo_t *i
       (yc <= v->banshee.hwcursor.y) &&
       ((int)(yc + Y_TILESIZE) > (v->banshee.hwcursor.y - 63))) {
 
-    Bit32u start = v->banshee.io[io_vidDesktopStartAddr];
+    if ((v->banshee.io[io_vidProcCfg] & 0x181) == 0x81) {
+      start = v->banshee.io[io_vidDesktopStartAddr];
+    } else {
+      start = v->fbi.rgboffs[v->fbi.frontbuf];
+    }
     Bit8u *disp_ptr = &v->fbi.ram[start & v->fbi.mask];
     Bit16u pitch = v->banshee.io[io_vidDesktopOverlayStride] & 0x7fff;
     if (v->banshee.desktop_tiled) {
@@ -460,6 +476,7 @@ void bx_banshee_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_le
   if ((address >= 0x1c) && (address < 0x2c))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
     value8 = (value >> (i*8)) & 0xFF;
     oldval = pci_conf[address+i];
@@ -486,13 +503,6 @@ void bx_banshee_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_le
     }
     pci_conf[address+i] = value8;
   }
-
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%02x", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%04x", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%08x", address, value));
 }
 
 Bit32u bx_banshee_c::read_handler(void *this_ptr, Bit32u address, unsigned io_len)
@@ -510,7 +520,7 @@ Bit32u bx_banshee_c::read(Bit32u address, unsigned io_len)
   Bit8u reg = (offset>>2);
   switch (reg) {
     case io_status:
-      result = register_r(0);
+      result = register_r(0) >> ((offset & 3) * 8);
       break;
 
     case io_dacData:
@@ -764,7 +774,6 @@ bx_bool bx_banshee_c::mem_write_handler(bx_phy_address addr, unsigned len,
 
 void bx_banshee_c::mem_read(bx_phy_address addr, unsigned len, void *data)
 {
-  Bit32u *data_ptr = (Bit32u*)data;
   Bit32u value = 0xffffffff;
   Bit32u offset = (addr & 0x1ffffff);
   Bit32u pitch = v->banshee.io[io_vidDesktopOverlayStride] & 0x7fff;
@@ -779,7 +788,16 @@ void bx_banshee_c::mem_read(bx_phy_address addr, unsigned len, void *data)
           value |= (pci_rom[(addr & mask) + i] << (i * 8));
         }
       }
-      *data_ptr = value;
+      switch (len) {
+        case 1:
+          *((Bit8u*)data) = (Bit8u)value;
+          break;
+        case 2:
+          *((Bit16u*)data) = (Bit16u)value;
+          break;
+        default:
+          *((Bit32u*)data) = value;
+      }
       return;
     }
   }
@@ -809,21 +827,42 @@ void bx_banshee_c::mem_read(bx_phy_address addr, unsigned len, void *data)
       x = (offset << 0) & ((1 << v->fbi.lfb_stride) - 1);
       y = (offset >> v->fbi.lfb_stride) & 0x7ff;
       offset = (v->fbi.lfb_base + y * pitch + x) & v->fbi.mask;
+    } else {
+      offset &= v->fbi.mask;
     }
     value = 0;
     for (i = 0; i < len; i++) {
       value |= (v->fbi.ram[offset + i] << (i*8));
     }
   }
-  *data_ptr = value;
+  switch (len) {
+    case 1:
+      *((Bit8u*)data) = (Bit8u)value;
+      break;
+    case 2:
+      *((Bit16u*)data) = (Bit16u)value;
+      break;
+    default:
+      *((Bit32u*)data) = value;
+  }
 }
 
 void bx_banshee_c::mem_write(bx_phy_address addr, unsigned len, void *data)
 {
   Bit32u offset = (addr & 0x1ffffff);
-  Bit32u value = *(Bit32u*)data;
+  Bit32u value;
   Bit32u mask = 0xffffffff;
 
+  switch (len) {
+    case 1:
+      value = *(Bit8u*)data;
+      break;
+    case 2:
+      value = *(Bit16u*)data;
+      break;
+    default:
+      value = *(Bit32u*)data;
+  }
   if ((addr & ~0x1ffffff) == pci_bar[0].addr) {
     if (offset < 0x80000) {
       write(offset, value, len);
@@ -924,6 +963,9 @@ Bit32u bx_banshee_c::agp_reg_read(Bit8u reg)
     case cmdHoleCnt1:
       result = v->fbi.cmdfifo[fifo_idx].holes;
       break;
+    case cmdStatus0:
+    case cmdStatus1:
+      BX_ERROR(("cmdStatus%d not implemented yet", fifo_idx));
     default:
       result = v->banshee.agp[reg];
   }
@@ -961,6 +1003,9 @@ void bx_banshee_c::agp_reg_write(Bit8u reg, Bit32u value)
         v->fbi.cmdfifo[1].end = v->fbi.cmdfifo[1].base + (((value & 0xff) + 1) << 12);
       }
       v->fbi.cmdfifo[fifo_idx].count_holes = (((value >> 10) & 1) == 0);
+      if ((value >> 9) & 1) {
+        BX_ERROR(("CMDFIFO in AGP memory not supported yet"));
+      }
       if (v->fbi.cmdfifo[fifo_idx].enabled != ((value >> 8) & 1)) {
         v->fbi.cmdfifo[fifo_idx].enabled = ((value >> 8) & 1);
         BX_INFO(("CMDFIFO #%d now %sabled", fifo_idx,
@@ -2389,7 +2434,8 @@ void bx_voodoo_vga_c::banshee_set_vclk3(Bit32u value)
 Bit32u bx_voodoo_vga_c::get_retrace()
 {
   Bit32u retval = 1;
-  Bit64u display_usec = bx_virt_timer.time_usec(0) % BX_VVGA_THIS s.vtotal_usec;
+  Bit64u display_usec =
+    bx_virt_timer.time_usec(BX_VVGA_THIS vsync_realtime) % BX_VVGA_THIS s.vtotal_usec;
   if ((display_usec >= BX_VVGA_THIS s.vrstart_usec) &&
       (display_usec <= BX_VVGA_THIS s.vrend_usec)) {
     retval = 0;

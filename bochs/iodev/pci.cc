@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: pci.cc 13472 2018-03-04 04:53:16Z vruppert $
+// $Id: pci.cc 13515 2018-05-21 16:11:46Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2002-2018  The Bochs Project
@@ -257,6 +257,8 @@ void bx_pci_bridge_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io
   old_dram_detect = BX_PCI_THIS dram_detect;
   if ((address >= 0x10) && (address < 0x34))
     return;
+
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
     value8 = (value >> (i*8)) & 0xFF;
     oldval = BX_PCI_THIS pci_conf[address+i];
@@ -445,15 +447,15 @@ bx_bool bx_pci_bridge_c::agp_ap_read_handler(bx_phy_address addr, unsigned len,
 Bit32u bx_pci_bridge_c::agp_aperture_read(bx_phy_address addr, unsigned len,
                                           bx_bool agp)
 {
-  Bit32u gart_addr, gart_index, offset, page_addr, page_offset;
-
   if (BX_PCI_THIS pci_conf[0x51] & 0x02) {
-    offset = (addr - pci_bar[0].addr);
-    gart_index = (Bit32u)(offset >> 12);
-    page_offset = (Bit32u)(offset & 0xfff);
-    gart_addr = BX_PCI_THIS gart_base + (gart_index << 2);
+    Bit32u offset = (Bit32u)(addr - pci_bar[0].addr);
+    Bit32u gart_index = (Bit32u)(offset >> 12);
+    Bit32u page_offset = (Bit32u)(offset & 0xfff);
+    Bit32u gart_addr = BX_PCI_THIS gart_base + (gart_index << 2);
+    Bit32u page_addr;
     DEV_MEM_READ_PHYSICAL(gart_addr, 4, (Bit8u*)&page_addr);
-    BX_INFO(("AGP aperture read: page address = 0x%08x", page_addr));
+    BX_INFO(("TODO: AGP aperture read: page address = 0x%08x / offset = 0x%04x",
+             page_addr, (Bit16u)page_offset));
     // TODO
   }
   return 0;
@@ -471,15 +473,15 @@ bx_bool bx_pci_bridge_c::agp_ap_write_handler(bx_phy_address addr, unsigned len,
 void bx_pci_bridge_c::agp_aperture_write(bx_phy_address addr, Bit32u value,
                                          unsigned len, bx_bool agp)
 {
-  Bit32u gart_addr, gart_index, offset, page_addr, page_offset;
-
   if (BX_PCI_THIS pci_conf[0x51] & 0x02) {
-    offset = (addr - pci_bar[0].addr);
-    gart_index = (Bit32u)(offset >> 12);
-    page_offset = (Bit32u)(offset & 0xfff);
-    gart_addr = BX_PCI_THIS gart_base + (gart_index << 2);
+    Bit32u offset = (Bit32u)(addr - pci_bar[0].addr);
+    Bit32u gart_index = (Bit32u)(offset >> 12);
+    Bit32u page_offset = (Bit32u)(offset & 0xfff);
+    Bit32u gart_addr = BX_PCI_THIS gart_base + (gart_index << 2);
+    Bit32u page_addr;
     DEV_MEM_READ_PHYSICAL(gart_addr, 4, (Bit8u*)&page_addr);
-    BX_INFO(("AGP aperture write: page address = 0x%08x", page_addr));
+    BX_INFO(("TODO: AGP aperture write: page address = 0x%08x / offset = 0x%04x",
+             page_addr, (Bit16u)page_offset));
     // TODO
   }
 }
@@ -638,6 +640,8 @@ void bx_pci_vbridge_c::after_restore_state(void)
 // pci configuration space write callback handler
 void bx_pci_vbridge_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_len)
 {
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
+
   for (unsigned i=0; i<io_len; i++) {
     Bit8u value8 = (value >> (i*8)) & 0xff;
     Bit8u oldval = pci_conf[address+i];
@@ -682,12 +686,5 @@ void bx_pci_vbridge_c::pci_write_handler(Bit8u address, Bit32u value, unsigned i
     }
     pci_conf[address+i] = value8;
   }
-
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%02x", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%04x", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%08x", address, value));
 }
 #endif /* BX_SUPPORT_PCI */

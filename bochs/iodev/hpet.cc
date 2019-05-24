@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: hpet.cc 13196 2017-04-17 20:38:18Z sshwarts $
+// $Id: hpet.cc 13538 2018-12-03 21:56:23Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  High Precision Event Timer emulation ported from Qemu
@@ -9,7 +9,7 @@
 //
 //  Authors: Beth Kon <bkon@us.ibm.com>
 //
-//  Copyright (C) 2017  The Bochs Project
+//  Copyright (C) 2017-2018  The Bochs Project
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -272,8 +272,8 @@ void bx_hpet_c::update_irq(HPETTimer *timer, bx_bool set)
     DEV_pic_raise_irq(route);
   } else {
     s.isr &= ~mask;
-    DEV_pic_raise_irq(route);
     DEV_pic_lower_irq(route);
+    DEV_pic_raise_irq(route);
   }
 }
 
@@ -367,7 +367,7 @@ Bit32u bx_hpet_c::read_aligned(bx_phy_address address)
       case HPET_STATUS:
         value = (Bit32u)s.isr;
         break;
-      case HPET_STATUS + 2:
+      case HPET_STATUS + 4:
         value = (Bit32u)(s.isr >> 32);
         break;
       case HPET_COUNTER:

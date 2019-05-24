@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: ne2k.cc 13469 2018-02-18 07:41:42Z vruppert $
+// $Id: ne2k.cc 13497 2018-05-01 15:54:37Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2018  The Bochs Project
@@ -176,7 +176,7 @@ void bx_ne2k_c::init(void)
   Bit8u macaddr[6];
   bx_param_string_c *bootrom;
 
-  BX_DEBUG(("Init $Id: ne2k.cc 13469 2018-02-18 07:41:42Z vruppert $"));
+  BX_DEBUG(("Init $Id: ne2k.cc 13497 2018-05-01 15:54:37Z vruppert $"));
 
   // Read in values from config interface
   bx_list_c *base = (bx_list_c*) SIM->get_param(BXPN_NE2K);
@@ -1692,6 +1692,7 @@ void bx_ne2k_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_len)
   if ((address > 0x13) && (address < 0x30))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
     oldval = BX_NE2K_THIS pci_conf[address+i];
     value8 = (value >> (i*8)) & 0xFF;
@@ -1704,13 +1705,6 @@ void bx_ne2k_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_len)
     }
     BX_NE2K_THIS pci_conf[address+i] = value8;
   }
-
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%02x", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%04x", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%08x", address, value));
 }
 
 void bx_ne2k_c::pci_bar_change_notify(void)

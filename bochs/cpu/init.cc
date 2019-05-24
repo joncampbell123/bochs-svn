@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: init.cc 13165 2017-03-31 07:34:08Z sshwarts $
+// $Id: init.cc 13541 2019-01-05 20:17:39Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2001-2017  The Bochs Project
@@ -1049,6 +1049,8 @@ void BX_CPU_C::reset(unsigned source)
 #if BX_CPU_LEVEL >= 4
   BX_CPU_THIS_PTR cpuid->dump_cpuid();
 #endif
+
+  BX_CPU_THIS_PTR cpuid->dump_features();
 
   BX_INSTR_RESET(BX_CPU_ID, source);
 }

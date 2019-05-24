@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: es1370.cc 13472 2018-03-04 04:53:16Z vruppert $
+// $Id: es1370.cc 13497 2018-05-01 15:54:37Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 // ES1370 soundcard support (ported from QEMU)
@@ -1088,6 +1088,7 @@ void bx_es1370_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_len
   if ((address >= 0x14) && (address < 0x34))
     return;
 
+  BX_DEBUG_PCI_WRITE(address, value, io_len);
   for (unsigned i=0; i<io_len; i++) {
     Bit8u value8 = (value >> (i*8)) & 0xFF;
 //    Bit8u oldval = BX_ES1370_THIS pci_conf[address+i];
@@ -1107,13 +1108,6 @@ void bx_es1370_c::pci_write_handler(Bit8u address, Bit32u value, unsigned io_len
         BX_ES1370_THIS pci_conf[address+i] = value8;
     }
   }
-
-  if (io_len == 1)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%02x", address, value));
-  else if (io_len == 2)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%04x", address, value));
-  else if (io_len == 4)
-    BX_DEBUG(("write PCI register 0x%02x value 0x%08x", address, value));
 }
 
 // runtime parameter handlers

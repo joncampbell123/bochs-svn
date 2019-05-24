@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: plugin.h 13471 2018-02-25 20:59:30Z vruppert $
+// $Id: plugin.h 13504 2018-05-10 10:50:42Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2002-2018  The Bochs Project
@@ -256,6 +256,7 @@ extern "C" {
 ///////// Speaker macros
 #define DEV_speaker_beep_on(frequency) bx_devices.pluginSpeaker->beep_on(frequency)
 #define DEV_speaker_beep_off() bx_devices.pluginSpeaker->beep_off()
+#define DEV_speaker_set_line(a) bx_devices.pluginSpeaker->set_line(a)
 
 ///////// Memory macros
 #define DEV_register_memory_handlers(param,rh,wh,b,e) \

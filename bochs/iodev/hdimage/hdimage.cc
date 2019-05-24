@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: hdimage.cc 13482 2018-03-31 17:07:44Z vruppert $
+// $Id: hdimage.cc 13506 2018-05-11 07:44:49Z vruppert $
 /////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2002-2018  The Bochs Project
@@ -231,10 +231,17 @@ int hdimage_open_file(const char *pathname, int flags, Bit64u *fsize, FILETIME *
   sprintf(lockfn, "%s.lock", pathname);
   lockfd = ::open(lockfn, O_RDONLY);
   if (lockfd >= 0) {
-    // Opening image must fail if lock file exists.
     ::close(lockfd);
-    BX_ERROR(("image locked: '%s'", pathname));
-    return -1;
+    if (SIM->get_param_bool(BXPN_UNLOCK_IMAGES)->get()) {
+      // Remove lock file if requested
+      if (access(lockfn, F_OK) == 0) {
+        unlink(lockfn);
+      }
+    } else {
+      // Opening image must fail if lock file exists.
+      BX_ERROR(("image locked: '%s'", pathname));
+      return -1;
+    }
   }
 #endif
 

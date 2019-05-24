@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////////////
-// $Id: avx512.cc 13466 2018-02-16 07:57:32Z sshwarts $
+// $Id: avx512.cc 13552 2019-02-16 19:42:04Z sshwarts $
 /////////////////////////////////////////////////////////////////////////
 //
-//   Copyright (c) 2013-2018 Stanislav Shwartsman
+//   Copyright (c) 2013-2019 Stanislav Shwartsman
 //          Written by Stanislav Shwartsman [sshwarts at sourceforge net]
 //
 //  This library is free software; you can redistribute it and/or
@@ -640,7 +640,7 @@ AVX512_PSHIFT_IMM_QWORD_EL(VPROLQ_MASK_UdqIb, xmm_prolq);
 
 // concatenate and shift
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLW_VdqHdqWdqIbR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDW_MASK_VdqHdqWdqIbR(bxInstruction_c *i)
 {
   BxPackedAvxRegister op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -660,7 +660,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLW_VdqHdqWdqIbR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLWV_VdqHdqWdqR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDVW_MASK_VdqHdqWdqR(bxInstruction_c *i)
 {
   BxPackedAvxRegister dst = BX_READ_AVX_REG(i->dst()), op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -680,7 +680,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLWV_VdqHdqWdqR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLD_VdqHdqWdqIbR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDD_MASK_VdqHdqWdqIbR(bxInstruction_c *i)
 {
   BxPackedAvxRegister op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -700,7 +700,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLD_VdqHdqWdqIbR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDV_VdqHdqWdqR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDVD_MASK_VdqHdqWdqR(bxInstruction_c *i)
 {
   BxPackedAvxRegister dst = BX_READ_AVX_REG(i->dst()), op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -720,7 +720,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDV_VdqHdqWdqR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLQ_VdqHdqWdqIbR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDQ_MASK_VdqHdqWdqIbR(bxInstruction_c *i)
 {
   BxPackedAvxRegister op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -740,7 +740,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLQ_VdqHdqWdqIbR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLQV_VdqHdqWdqR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLDVQ_MASK_VdqHdqWdqR(bxInstruction_c *i)
 {
   BxPackedAvxRegister dst = BX_READ_AVX_REG(i->dst()), op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -760,7 +760,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHLQV_VdqHdqWdqR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRW_VdqHdqWdqIbR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDW_MASK_VdqHdqWdqIbR(bxInstruction_c *i)
 {
   BxPackedAvxRegister op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -780,7 +780,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRW_VdqHdqWdqIbR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRWV_VdqHdqWdqR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDVW_MASK_VdqHdqWdqR(bxInstruction_c *i)
 {
   BxPackedAvxRegister dst = BX_READ_AVX_REG(i->dst()), op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -800,7 +800,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRWV_VdqHdqWdqR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRD_VdqHdqWdqIbR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDD_MASK_VdqHdqWdqIbR(bxInstruction_c *i)
 {
   BxPackedAvxRegister op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -820,7 +820,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRD_VdqHdqWdqIbR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDV_VdqHdqWdqR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDVD_MASK_VdqHdqWdqR(bxInstruction_c *i)
 {
   BxPackedAvxRegister dst = BX_READ_AVX_REG(i->dst()), op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -840,7 +840,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDV_VdqHdqWdqR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRQ_VdqHdqWdqIbR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDQ_MASK_VdqHdqWdqIbR(bxInstruction_c *i)
 {
   BxPackedAvxRegister op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -860,7 +860,7 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRQ_VdqHdqWdqIbR(bxInstruction_c *i)
   BX_NEXT_INSTR(i);
 }
 
-void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRQV_VdqHdqWdqR(bxInstruction_c *i)
+void BX_CPP_AttrRegparmN(1) BX_CPU_C::VPSHRDVQ_MASK_VdqHdqWdqR(bxInstruction_c *i)
 {
   BxPackedAvxRegister dst = BX_READ_AVX_REG(i->dst()), op1 = BX_READ_AVX_REG(i->src1()), op2 = BX_READ_AVX_REG(i->src2());
   unsigned len = i->getVL();
@@ -1473,45 +1473,27 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VINSERTF64x2_MASK_VpdHpdWpdIbR(bxInstructi
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VINSERTF64x4_VpdHpdWpdIbR(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src1());
   op.vmm256(i->Ib() & 0x1) = BX_READ_YMM_REG(i->src2());
-  BX_WRITE_AVX_REGZ(i->dst(), op, len);
+  BX_WRITE_AVX_REGZ(i->dst(), op, BX_VL512);
 
   BX_NEXT_INSTR(i);
 }
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VINSERTF64x4_MASK_VpdHpdWpdIbR(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src1());
   op.vmm256(i->Ib() & 0x1) = BX_READ_YMM_REG(i->src2());
-  avx512_write_regq_masked(i, &op, len, BX_READ_8BIT_OPMASK(i->opmask()));
+  avx512_write_regq_masked(i, &op, BX_VL512, BX_READ_8BIT_OPMASK(i->opmask()));
 
   BX_NEXT_INSTR(i);
 }
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VINSERTF32x8_MASK_VpsHpsWpsIbR(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src1());
   op.vmm256(i->Ib() & 0x1) = BX_READ_YMM_REG(i->src2());
-  avx512_write_regd_masked(i, &op, len, BX_READ_16BIT_OPMASK(i->opmask()));
+  avx512_write_regd_masked(i, &op, BX_VL512, BX_READ_16BIT_OPMASK(i->opmask()));
 
   BX_NEXT_INSTR(i);
 }
@@ -1576,12 +1558,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x2_MASK_WpdVpdIbM(bxInstruction
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_WpdVpdIbR(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src());
   BX_WRITE_YMM_REGZ(i->dst(), op.vmm256(i->Ib() & 0x1));
   BX_NEXT_INSTR(i);
@@ -1589,12 +1565,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_WpdVpdIbR(bxInstruction_c *i
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_MASK_WpdVpdIbR(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src());
   if (i->Ib() & 0x1)
     op.vmm256(0) = op.vmm256(1);
@@ -1605,12 +1575,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_MASK_WpdVpdIbR(bxInstruction
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_WpdVpdIbM(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src());
   bx_address eaddr = BX_CPU_RESOLVE_ADDR(i);
   write_virtual_ymmword(i->seg(), eaddr, &op.vmm256(i->Ib() & 0x1));
@@ -1619,12 +1583,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_WpdVpdIbM(bxInstruction_c *i
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_MASK_WpdVpdIbM(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src());
   if (i->Ib() & 0x1)
     op.vmm256(0) = op.vmm256(1);
@@ -1638,12 +1596,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF64x4_MASK_WpdVpdIbM(bxInstruction
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF32x8_MASK_WpsVpsIbR(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src());
   if (i->Ib() & 0x1)
     op.vmm256(0) = op.vmm256(1);
@@ -1654,12 +1606,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF32x8_MASK_WpsVpsIbR(bxInstruction
 
 void BX_CPP_AttrRegparmN(1) BX_CPU_C::VEXTRACTF32x8_MASK_WpsVpsIbM(bxInstruction_c *i)
 {
-  unsigned len = i->getVL();
-  if (len != BX_VL512) {
-    BX_ERROR(("%s: vector length must be 512 bit", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-
   BxPackedAvxRegister op = BX_READ_AVX_REG(i->src());
   if (i->Ib() & 0x1)
     op.vmm256(0) = op.vmm256(1);
@@ -1912,13 +1858,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VBROADCASTF64x4_VpdMpd(bxInstruction_c *i)
   BxPackedAvxRegister dst;
   BxPackedYmmRegister src;
 
-#if BX_SUPPORT_EVEX
-  if (i->getVL() != BX_VL512) {
-    BX_ERROR(("%s: must have 512-bit vector length", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-#endif
-
   bx_address eaddr = BX_CPU_RESOLVE_ADDR(i);
   read_virtual_ymmword(i->seg(), eaddr, &src);
 
@@ -1934,13 +1873,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VBROADCASTF64x4_MASK_VpdMpd(bxInstruction_
 {
   BxPackedAvxRegister dst;
   BxPackedYmmRegister src;
-
-#if BX_SUPPORT_EVEX
-  if (i->getVL() != BX_VL512) {
-    BX_ERROR(("%s: must have 512-bit vector length", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-#endif
 
   Bit32u opmask = BX_READ_8BIT_OPMASK(i->opmask());
   if (opmask != 0) {
@@ -1964,13 +1896,6 @@ void BX_CPP_AttrRegparmN(1) BX_CPU_C::VBROADCASTF32x8_MASK_VpsMps(bxInstruction_
 {
   BxPackedAvxRegister dst;
   BxPackedYmmRegister src;
-
-#if BX_SUPPORT_EVEX
-  if (i->getVL() != BX_VL512) {
-    BX_ERROR(("%s: must have 512-bit vector length", i->getIaOpcodeNameShort()));
-    exception(BX_UD_EXCEPTION, 0);
-  }
-#endif
 
   Bit32u opmask = BX_READ_16BIT_OPMASK(i->opmask());
   if (opmask != 0) {

@@ -2,7 +2,7 @@ dnl // Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.50)
 AC_INIT(bochs.h)
-AC_REVISION([[$Id: configure.in 13425 2018-01-05 17:43:51Z vruppert $]])
+AC_REVISION([[$Id: configure.in 13559 2019-04-21 20:08:32Z vruppert $]])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_HEADER(ltdlconf.h)
 
@@ -2328,6 +2328,7 @@ use_gui_console=0
 # handled later.
 
 XPM_LIB=''
+XRANDR_LIB=''
 if test "$with_x11" = yes; then
   display_libs="$display_libs X11"
   if test "$no_x" = yes; then
@@ -2358,12 +2359,16 @@ if test "$with_x11" = yes; then
         XPM_LIB='-lXpm'
       ])
   fi
+  AC_CHECK_HEADER(X11/extensions/Xrandr.h, [
+    AC_DEFINE(BX_HAVE_XRANDR_H)
+    XRANDR_LIB='-lXrandr'
+    ])
 
   if test "$PKGCONFIG" != not_found; then
     X_CFLAGS="`pkg-config --cflags x11`"
-    X_LIBS="`pkg-config --libs x11` $XPM_LIB -lXrandr"
+    X_LIBS="`pkg-config --libs x11` $XPM_LIB $XRANDR_LIB"
   else
-    X_LIBS="$X_LIBS -lX11 $XPM_LIB -lXrandr"
+    X_LIBS="$X_LIBS -lX11 $XPM_LIB $XRANDR_LIB"
   fi
 
   AC_DEFINE(BX_WITH_X11, 1)
